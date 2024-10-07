@@ -88,4 +88,6 @@ void Camera::computeMatricesFromInputs(GLFWwindow *window, glm::vec3 center)
 
     ProjectionMatrix = glm::perspective(_initial_fov, float(width) / height, 0.5f, 300.0f);
     ViewMatrix = glm::lookAt(_position, _position + direction, up);
+    // auto test = ViewMatrix * glm::vec4(_position, 1);
+    // std::cout << "camera position: " << test.x << " " << test.y << " " << test.z << std::endl;
 }

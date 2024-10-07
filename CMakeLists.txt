@@ -5,6 +5,7 @@ project(opengl_learn)
 include_directories(./include ./common ./task)
 
 link_directories(./lib)
+# find_library(assimp-5d TOOLS_SHARED ./bin)
 
 aux_source_directory(./common COMMON_LIST)
 
@@ -35,7 +36,7 @@ target_link_libraries(homework_2 glfw3)
 # add_executable(class_7 learn/class7_model_loading.cpp src/glad.c ${COMMON_LIST})
 # target_link_libraries(class_7 glfw3)
 
-add_executable(class_8 learn/class8_shading.cpp src/glad.c ${COMMON_LIST})
+add_executable(class_8 learn/class8_shading.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
 target_link_libraries(class_8 glfw3 libassimpd)
 
 add_custom_target(copy_assimp_dll ALL

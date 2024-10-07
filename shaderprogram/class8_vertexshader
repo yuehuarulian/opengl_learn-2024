@@ -7,6 +7,7 @@ out vec2 UV;
 out vec3 LightDirection_cameraspace;
 out vec3 Normal_cameraspace;
 out float distance;
+out vec3 viewDirection_cameraspace;
 
 uniform mat4 M;
 uniform mat4 V;
@@ -17,17 +18,18 @@ void main()
 {
     gl_Position = P * V * M * vec4(vertexPosition_modelspace, 1); // 不需要写out因为是内置变量
 
-    vec3 Position_worldspace = (M * vec4(vertexPosition_modelspace, 1)).xyz;
-
     vec3 vertexPosition_cameraspace = (V * M * vec4(vertexPosition_modelspace, 1)).xyz;
 
     vec3 LightPosition_cameraspace = (V * vec4(LightPosition_worldspace, 1)).xyz;
 
-    LightDirection_cameraspace = LightPosition_cameraspace - vertexPosition_cameraspace;
+    LightDirection_cameraspace =  normalize(LightPosition_cameraspace - vertexPosition_cameraspace); // 光照方向应该指向光源
 
-    Normal_cameraspace = (M * vec4(vertexNormal_modelspace, 0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
+    // Normal_cameraspace = (V * M * vec4(vertexNormal_modelspace, 0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
+    Normal_cameraspace = (transpose(inverse(V * M)) * vec4(vertexNormal_modelspace, 0)).xyz;
 
-    distance = length(LightPosition_worldspace - Position_worldspace);
+    distance = length(vertexPosition_cameraspace - LightPosition_cameraspace);
+
+    viewDirection_cameraspace = normalize(vec3(0,0,0) - vertexPosition_cameraspace);
 
     UV = vertexUV;
 }

@@ -2,9 +2,10 @@
 #include "glad/glad.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/glm.hpp"
-#include "glm/gtx/transform.hpp" // after <glm/glm.hpp>
-
+#include "glm/gtx/transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "GLFW/glfw3.h"
+
 #include "shader.hpp"
 #include "load_bmp.hpp"
 #include "objloader.hpp"
@@ -12,13 +13,56 @@
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
+#include "sphere.hpp"
 
 const unsigned int WINDOW_WIDTH = 1080;
 const unsigned int WINDOW_HEIGHT = 720;
 
-glm::vec3 LightPosition_worldspace = glm::vec3(10, 10, 10); // 光源位置
-glm::vec3 LightColor = glm::vec3(1, 1, 1);                  // 光源颜色
-float LightPower = 1.0f;                                    // 光源强度
+glm::vec3 LightPosition_worldspace = glm::vec3(4.0f, 0.0f, 0.0f); // 光源位置
+glm::vec3 LightColor = glm::vec3(1, 1, 1);                        // 光源颜色
+float LightPower = 0.7f;                                          // 光源强度
+
+float specularStrength = 0.4f; // 镜面反射强度
+
+Sphere sphere(48);
+void setup_vertices(GLuint &VAO, GLuint &VBO, GLuint &normal)
+{
+    std::vector<int> ind = sphere.getIndices();         // 球体点的标注
+    std::vector<glm::vec3> vert = sphere.getVertices(); // 球上的顶点
+    std::vector<glm::vec2> tex = sphere.getTexCoords(); // 纹理坐标
+    std::vector<glm::vec3> norm = sphere.getNormals();  // 球上法向量
+    std::vector<float> pvalues;                         // vertex positions 顶点位置
+    std::vector<float> tvalues;                         // texture coordinates 纹理坐标
+    std::vector<float> nvalues;                         // normal vectors 法向量
+
+    int numIndices = sphere.getNumIndices();
+    for (int i = 0; i < numIndices; i++)
+    { // 把每一个点上的坐标（x,y,z），纹理坐标（s，t），法向量(a,b,c)存储进对应数组
+        pvalues.push_back((vert[ind[i]]).x);
+        pvalues.push_back((vert[ind[i]]).y);
+        pvalues.push_back((vert[ind[i]]).z);
+        tvalues.push_back((tex[ind[i]]).s);
+        tvalues.push_back((tex[ind[i]]).t);
+        nvalues.push_back((norm[ind[i]]).x);
+        nvalues.push_back((norm[ind[i]]).y);
+        nvalues.push_back((norm[ind[i]]).z);
+    }
+
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    // put the vertices into buffer #0  第一个是顶点放入缓存器中
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, pvalues.size() * 4, &pvalues[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
+    // put the normals into buffer #2   第三个是将法向量放入缓存器中
+    glBindBuffer(GL_ARRAY_BUFFER, normal);
+    glBufferData(GL_ARRAY_BUFFER, nvalues.size() * 4, &nvalues[0], GL_STATIC_DRAW);
+    glBindVertexArray(0);
+}
 
 int main()
 {
@@ -94,35 +138,43 @@ int main()
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glEnableVertexAttribArray(2);
 
+    GLuint VAO_camera;
+    setup_vertices(VAO_camera, VBO, normal);
+
     GLuint programID = LoadShaders("./shaderprogram/class8_vertexshader", "./shaderprogram/class8_fragmentshader");
+    GLuint programID_camera = LoadShaders("shaderprogram/homework2_2.vertexshader", "shaderprogram/homework2_2.fragmentshader");
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
     // glDepthFunc(GL_LESS);
     Camera camera(window, 45.0f, glm::vec3(0.0f, 0.0f, 10.0f), glm::pi<float>(), 0.f, 5.0f, 4.0f);
+    glfwSwapInterval(1);                                                                            // 垂直同步，参数：在 glfwSwapBuffers 交换缓冲区之前要等待的最小屏幕更新数
     while (glfwWindowShouldClose(window) == 0 && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS) // 窗口没有关闭，esc键没有按下
     {
-        camera.computeMatricesFromInputs(window);       // 读键盘和鼠标操作，然后计算投影观察矩阵
-        glm::mat4 Projection = camera.ProjectionMatrix; // 返回计算好的投影矩阵
-        glm::mat4 View = camera.ViewMatrix;             // 返回计算好的观察矩阵
+        static float rotation_angle = 0.0f;
+        rotation_angle += 0.01f;
+        // LightPosition_worldspace = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(LightPosition_worldspace, 1.0f);
+        LightPosition_worldspace = glm::rotate(glm::mat4(1.0f), 0.01f, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(LightPosition_worldspace, 1.0f);
+
+        camera.computeMatricesFromInputs(window); // 读键盘和鼠标操作，然后计算投影观察矩阵
+        glm::mat4 Projection = camera.ProjectionMatrix;
+        glm::mat4 View = camera.ViewMatrix;
         glm::mat4 Model = glm::mat4(1.0f);
         GLuint Matrix_M = glGetUniformLocation(programID, "M");
         GLuint Matrix_V = glGetUniformLocation(programID, "V");
         GLuint Matrix_P = glGetUniformLocation(programID, "P");
 
-        // 获取光源相关 uniform 的位置
         GLuint LightPositionID = glGetUniformLocation(programID, "LightPosition_worldspace");
         GLuint LightColorID = glGetUniformLocation(programID, "LightColor");
         GLuint LightPowerID = glGetUniformLocation(programID, "LightPower");
-
-        // 每帧更新光源参数
+        GLuint specularStrengthID = glGetUniformLocation(programID, "LightSpecularPower");
 
         // 清空屏幕
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // 使用着色器
+        // 绘制模型
         glUseProgram(programID);
         glUniformMatrix4fv(Matrix_M, 1, GL_FALSE, &Model[0][0]);        // uniform Model
         glUniformMatrix4fv(Matrix_V, 1, GL_FALSE, &View[0][0]);         // uniform View
@@ -130,9 +182,27 @@ int main()
         glUniform3fv(LightPositionID, 1, &LightPosition_worldspace[0]); // 光源位置
         glUniform3fv(LightColorID, 1, &LightColor[0]);                  // 光源颜色
         glUniform1f(LightPowerID, LightPower);                          // 光源强度
+        glUniform1f(specularStrengthID, specularStrength);              // 镜面反射强度
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+
+        // 绘制camera球体
+        glUseProgram(programID_camera);
+        GLuint MatrixID = glGetUniformLocation(programID_camera, "MVP");
+        GLuint ColorID = glGetUniformLocation(programID_camera, "mycolor");
+        Model = glm::mat4(1.0f);
+        Model = glm::translate(Model, LightPosition_worldspace);
+        Model = glm::scale(Model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glm::mat4 mvp = Projection * View * Model;
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+        glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+        glUniform3fv(ColorID, 1, glm::value_ptr(color));
+
+        glBindVertexArray(VAO_camera);
+        glDrawArrays(GL_LINE_LOOP, 0, sphere.getNumIndices());
+
+        glBindVertexArray(0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
