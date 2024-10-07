@@ -1,0 +1,23 @@
+#version 330 core
+in vec2 UV;
+in vec3 LightDirection_cameraspace;
+in vec3 Normal_cameraspace;
+in float distance; // 光源到片段的距离
+out vec3 color;
+
+uniform sampler2D myTextureSampler;
+uniform vec3 LightColor; // 光源颜色
+uniform float LightPower; // 光源强度
+
+void main()
+{
+    vec3 n = normalize(Normal_cameraspace);
+    vec3 l = normalize(LightDirection_cameraspace);
+
+    float cosTheta = clamp(dot(n,l), 0,1);
+    
+    vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
+
+    vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+    color = MaterialAmbientColor + MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance/10 * distance/10);
+}

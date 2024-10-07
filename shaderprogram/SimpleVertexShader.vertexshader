@@ -1,0 +1,19 @@
+#version 330 core
+    layout (location = 0) in vec3 aPos;
+
+    out vec3 ourColor;
+
+    uniform float time;
+    uniform mat4 model;
+    uniform mat4 view;
+    uniform mat4 projection;
+
+    void main() {
+        // 应用投影和视角矩阵
+        gl_Position = projection * view * model * vec4(aPos, 1.0);
+        
+        // 动态颜色生成, 使用正弦波来创建变化效果
+        ourColor = vec3(0.5 + 0.5 * sin(time + aPos.x),
+                        0.5 + 0.5 * sin(time + aPos.y),
+                        0.5 + 0.5 * sin(time + aPos.z));
+    }
