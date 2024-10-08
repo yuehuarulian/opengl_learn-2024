@@ -7,7 +7,7 @@
 #include "GLFW/glfw3.h"
 
 #include "shader.hpp"
-#include "load_bmp.hpp"
+#include "load_image.hpp"
 #include "objloader.hpp"
 #include "camera_control.hpp"
 #include "assimp/Importer.hpp"
@@ -123,7 +123,7 @@ int main()
     glEnableVertexAttribArray(0); // 启用顶点属性数组，和glVertexAttribPointer第一个参数对应
 
     // 纹理缓冲对象
-    GLuint texture = loadBMP_custom("./image/background.bmp");
+    GLuint texture = load_image("./image/background.bmp");
     glGenBuffers(1, &texture);
     glBindBuffer(GL_ARRAY_BUFFER, texture);
     glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);

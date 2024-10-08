@@ -12,7 +12,7 @@
 #include "GLFW/glfw3.h"
 
 #include "shader.hpp"
-#include "load_bmp.hpp"
+#include "load_image.hpp"
 #include "sphere.hpp"
 #include "camera_control.hpp"
 
@@ -60,7 +60,7 @@ void init(GLFWwindow *window, GLuint *programID, GLuint *texture)
     programID[1] = LoadShaders("shaderprogram/homework2_2.vertexshader", "shaderprogram/homework2_2.fragmentshader");
     camera = Camera(window, 45.0f, glm::vec3(0, 3, 20));
     for (int i = 0; i < numPlanets; i++)
-        texture[i] = loadBMP_custom(planets[i].textureFile); // 加载每个天体的纹理
+        texture[i] = load_image(planets[i].textureFile); // 加载每个天体的纹理
 }
 
 void setup_vertices(GLuint &VAO, GLuint *VBO)
@@ -200,8 +200,8 @@ void display(GLFWwindow *window, double currentTime, GLuint *programID, GLuint *
         glUniform1f(specularStrengthID, specularStrength);              // 镜面反射强度
         glUniform1i(isSunID, i == 0);                                   // 是否是太阳
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture[i]);
+        glActiveTexture(GL_TEXTURE0);             // 激活纹理单元
+        glBindTexture(GL_TEXTURE_2D, texture[i]); // 绑定纹理
         glDrawArrays(GL_TRIANGLES, 0, sphere.getNumIndices());
     }
     glBindVertexArray(0);

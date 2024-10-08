@@ -1,0 +1,45 @@
+# version 330 core
+struct Material {
+    sampler2D diffuse; // 漫反射贴图
+    sampler2D specular;// 镜面反射颜色
+    float     shininess;// 镜面反射强度
+}; 
+
+struct Light {
+    vec3 position;// 光源位置
+    vec3 direction;// 光源方向
+
+    vec3 ambient;// 环境光强度
+    vec3 diffuse;// 漫反射强度
+    vec3 specular;// 镜面反射强度
+
+    float constant;// 衰减常数
+    float linear;// 衰减线性
+    float quadratic;// 衰减二次
+
+    float cutOff;// 指定了聚光半径的切光角。落在这个角度之外的物体都不会被这个聚光所照亮
+};
+
+in vec2 TexCoords;
+in vec3 LightDirection_cameraspace;
+in vec3 Normal_cameraspace;
+in vec3 viewDirection_cameraspace;
+in float distance;
+
+out vec4 FragColor;
+
+uniform Material material;
+uniform Light light;
+
+
+void main()
+{
+    float diff = clamp(dot(Normal_cameraspace, LightDirection_cameraspace), 0, 1);
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
+    
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+
+    float spec = pow(clamp(dot(reflect(-LightDirection_cameraspace, Normal_cameraspace), viewDirection_cameraspace), 0, 1), material.shininess);
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    FragColor = vec4(diffuse + ambient + specular, 1.0);
+}

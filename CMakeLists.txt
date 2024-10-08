@@ -36,8 +36,14 @@ target_link_libraries(homework_2 glfw3)
 # add_executable(class_7 learn/class7_model_loading.cpp src/glad.c ${COMMON_LIST})
 # target_link_libraries(class_7 glfw3)
 
-add_executable(class_8 learn/class8_shading.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
-target_link_libraries(class_8 glfw3 libassimpd)
+# add_executable(class_8 learn/class8_shading.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+# target_link_libraries(class_8 glfw3 libassimpd)
+
+# add_executable(class_9 learn/class9_material.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+# target_link_libraries(class_9 glfw3 libassimpd)
+
+add_executable(class_10 learn/class10_multilight.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+target_link_libraries(class_10 glfw3 libassimpd)
 
 add_custom_target(copy_assimp_dll ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
