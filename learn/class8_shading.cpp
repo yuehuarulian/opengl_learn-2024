@@ -183,7 +183,6 @@ int main()
         glUniform3fv(LightColorID, 1, &LightColor[0]);                  // 光源颜色
         glUniform1f(LightPowerID, LightPower);                          // 光源强度
         glUniform1f(specularStrengthID, specularStrength);              // 镜面反射强度
-
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
@@ -198,7 +197,6 @@ int main()
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
         glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
         glUniform3fv(ColorID, 1, glm::value_ptr(color));
-
         glBindVertexArray(VAO_camera);
         glDrawArrays(GL_LINE_LOOP, 0, sphere.getNumIndices());
 

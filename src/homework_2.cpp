@@ -28,6 +28,11 @@ const int num_segments = 100; // 圆的细分数量
 Sphere sphere(48);
 Camera camera;
 
+glm::vec3 LightPosition_worldspace = glm::vec3(0.0f, 0.0f, 0.0f); // 光源位置
+glm::vec3 LightColor = glm::vec3(1, 1, 1);                        // 光源颜色
+float LightPower = 1.0f;                                          // 光源强度
+float specularStrength = 0.1f;                                    // 镜面反射强度
+
 // 行星参数：{半径, 距太阳距离, 公转周期, 纹理文件名}
 struct Planet
 {
@@ -53,7 +58,7 @@ void init(GLFWwindow *window, GLuint *programID, GLuint *texture)
 {
     programID[0] = LoadShaders("shaderprogram/homework2_1.vertexshader", "shaderprogram/homework2_1.fragmentshader");
     programID[1] = LoadShaders("shaderprogram/homework2_2.vertexshader", "shaderprogram/homework2_2.fragmentshader");
-    camera = Camera(window, 45.0f, glm::vec3(0, 10, 60));
+    camera = Camera(window, 45.0f, glm::vec3(0, 3, 20));
     for (int i = 0; i < numPlanets; i++)
         texture[i] = loadBMP_custom(planets[i].textureFile); // 加载每个天体的纹理
 }
@@ -100,6 +105,8 @@ void setup_vertices(GLuint &VAO, GLuint *VBO)
     // put the normals into buffer #2   第三个是将法向量放入缓存器中
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
     glBufferData(GL_ARRAY_BUFFER, nvalues.size() * 4, &nvalues[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(2);
     glBindVertexArray(0);
 }
 
@@ -160,7 +167,15 @@ void display(GLFWwindow *window, double currentTime, GLuint *programID, GLuint *
 
     // 绘制行星
     glUseProgram(programID[0]);
-    GLuint MatrixID = glGetUniformLocation(programID[0], "MVP");
+    GLuint Matrix_M = glGetUniformLocation(programID[0], "M");
+    GLuint Matrix_V = glGetUniformLocation(programID[0], "V");
+    GLuint Matrix_P = glGetUniformLocation(programID[0], "P");
+
+    GLuint LightPositionID = glGetUniformLocation(programID[0], "LightPosition_worldspace");
+    GLuint LightColorID = glGetUniformLocation(programID[0], "LightColor");
+    GLuint LightPowerID = glGetUniformLocation(programID[0], "LightPower");
+    GLuint specularStrengthID = glGetUniformLocation(programID[0], "LightSpecularPower");
+    GLuint isSunID = glGetUniformLocation(programID[0], "isSun");
     for (int i = 0; i < numPlanets; i++)
     {
         glBindVertexArray(VAO[0]);
@@ -175,8 +190,16 @@ void display(GLFWwindow *window, double currentTime, GLuint *programID, GLuint *
             Model = glm::translate(Model, glm::vec3(planets[i].distance * scale, 0.0f, 0.0f));
         }
         Model = glm::scale(Model, glm::vec3(planets[i].radius * scale)); // 设置行星的大小
-        glm::mat4 mvp = Projection * View * Model;
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+
+        glUniformMatrix4fv(Matrix_M, 1, GL_FALSE, &Model[0][0]);        // uniform Model
+        glUniformMatrix4fv(Matrix_V, 1, GL_FALSE, &View[0][0]);         // uniform View
+        glUniformMatrix4fv(Matrix_P, 1, GL_FALSE, &Projection[0][0]);   // uniform Projection
+        glUniform3fv(LightPositionID, 1, &LightPosition_worldspace[0]); // 光源位置
+        glUniform3fv(LightColorID, 1, &LightColor[0]);                  // 光源颜色
+        glUniform1f(LightPowerID, LightPower);                          // 光源强度
+        glUniform1f(specularStrengthID, specularStrength);              // 镜面反射强度
+        glUniform1i(isSunID, i == 0);                                   // 是否是太阳
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture[i]);
         glDrawArrays(GL_TRIANGLES, 0, sphere.getNumIndices());
@@ -185,7 +208,7 @@ void display(GLFWwindow *window, double currentTime, GLuint *programID, GLuint *
 
     // 绘制圆形轨道
     glUseProgram(programID[1]);
-    MatrixID = glGetUniformLocation(programID[1], "MVP");
+    GLuint MatrixID = glGetUniformLocation(programID[1], "MVP");
     GLuint ColorID = glGetUniformLocation(programID[1], "mycolor");
     for (int i = 0; i < numPlanets; i++)
     {
