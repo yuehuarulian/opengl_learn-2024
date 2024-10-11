@@ -6,7 +6,7 @@
 
 #include "GLFW/glfw3.h"
 #include "shader.hpp"
-#include "error.h"
+#include "error.hpp"
 const unsigned int WINDOW_WIDTH = 1080;
 const unsigned int WINDOW_HEIGHT = 720;
 

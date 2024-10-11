@@ -45,6 +45,9 @@ target_link_libraries(homework_2 glfw3)
 add_executable(class_10 learn/class10_multilight.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
 target_link_libraries(class_10 glfw3 libassimpd)
 
+add_executable(class_11 learn/class11_model.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+target_link_libraries(class_11 glfw3 libassimpd)
+
 add_custom_target(copy_assimp_dll ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${PROJECT_SOURCE_DIR}/bin/libassimp-5d.dll"
