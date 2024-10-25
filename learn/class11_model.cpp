@@ -7,7 +7,6 @@
 #include "GLFW/glfw3.h"
 
 #include "shader.hpp"
-#include "load_image.hpp"
 #include "camera_control.hpp"
 #include "sphere.hpp"
 #include "model.hpp"
