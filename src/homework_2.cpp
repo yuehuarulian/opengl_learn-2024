@@ -11,7 +11,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "GLFW/glfw3.h"
 
-#include "shader.hpp"
+#include "old_shader.hpp"
 #include "load_image.hpp"
 #include "sphere.hpp"
 #include "camera_control.hpp"
@@ -56,8 +56,8 @@ const Planet planets[numPlanets] = {
 
 void init(GLFWwindow *window, GLuint *programID, GLuint *texture)
 {
-    programID[0] = LoadShaders("shaderprogram/homework2_1.vertexshader", "shaderprogram/homework2_1.fragmentshader");
-    programID[1] = LoadShaders("shaderprogram/homework2_2.vertexshader", "shaderprogram/homework2_2.fragmentshader");
+    programID[0] = load_shaders("shaderprogram/homework2_1.vertexshader", "shaderprogram/homework2_1.fragmentshader");
+    programID[1] = load_shaders("shaderprogram/homework2_2.vertexshader", "shaderprogram/homework2_2.fragmentshader");
     camera = Camera(window, 45.0f, glm::vec3(0, 3, 20));
     for (int i = 0; i < numPlanets; i++)
         texture[i] = load_image(planets[i].textureFile); // 加载每个天体的纹理
@@ -161,9 +161,9 @@ void display(GLFWwindow *window, double currentTime, GLuint *programID, GLuint *
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    camera.computeMatricesFromInputs(window);
-    glm::mat4 Projection = camera.ProjectionMatrix;
-    glm::mat4 View = camera.ViewMatrix;
+    camera.compute_matrices_from_inputs(window);
+    glm::mat4 Projection = camera.projection;
+    glm::mat4 View = camera.view;
 
     // 绘制行星
     glUseProgram(programID[0]);

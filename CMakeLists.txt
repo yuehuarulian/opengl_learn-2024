@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(opengl_learn)
 
-include_directories(./include ./common ./task)
+include_directories(./include ./common ./task ./old_common)
 
 link_directories(./lib)
 # find_library(assimp-5d TOOLS_SHARED ./bin)
@@ -13,7 +13,7 @@ aux_source_directory(./common COMMON_LIST)
 # target_link_libraries(homework_1 glfw3)
 
 add_executable(homework_2 src/homework_2.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
-target_link_libraries(homework_2 glfw3)
+target_link_libraries(homework_2 glfw3 libassimpd)
 
 # add_executable(class_1 learn/class1_window.cpp src/glad.c)
 # target_link_libraries(class_1 glfw3)
@@ -48,8 +48,11 @@ target_link_libraries(homework_2 glfw3)
 # add_executable(class_11 learn/class11_model.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
 # target_link_libraries(class_11 glfw3 libassimpd)
 
-add_executable(class_12 learn/class12_stencil_testing.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
-target_link_libraries(class_12 glfw3 libassimpd)
+# add_executable(class_12 learn/class12_stencil_testing.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+# target_link_libraries(class_12 glfw3 libassimpd)
+
+# add_executable(class_13 learn/class13_blending.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+# target_link_libraries(class_13 glfw3 libassimpd)
 
 add_custom_target(copy_assimp_dll ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
