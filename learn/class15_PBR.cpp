@@ -16,6 +16,7 @@
 #include "load_texture.hpp"
 #include "load_skybox.hpp"
 #include "skybox.hpp"
+#include "light_manager.hpp"
 #include "renderable_model.hpp"
 
 // settings
@@ -168,11 +169,10 @@ int main()
 {
     GLFWwindow *window = initialize_glfw_window();
 
-    // build and compile shaders
-    // -------------------------
     Camera camera(window, 45.0f, glm::vec3(0., 0., 10.));
 
     Shader shader("source/shader/class15/pbr.vs", "source/shader/class15/pbr.fs");
+    Skybox skybox(faces, "source/shader/class14/skybox.vs", "source/shader/class14/skybox.fs");
 
     shader.use();
     shader.setInt("albedoMap", 0);
@@ -188,17 +188,18 @@ int main()
     unsigned int ao = load_texture("source/model/rustediron1-alt2-bl/ao.png");
 
     // light
+    LightManager lightManager;
     glm::vec3 lightPositions[] = {
         glm::vec3(0.0f, 0.0f, 10.0f),
+        glm::vec3(0.0f, 0.0f, -10.0f),
     };
     glm::vec3 lightColors[] = {
+        glm::vec3(150.0f, 150.0f, 150.0f),
         glm::vec3(150.0f, 150.0f, 150.0f),
     };
     int nrRows = 7;
     int nrColumns = 7;
     float spacing = 2.5;
-
-    Skybox skybox(faces, "source/shader/class14/skybox.vs", "source/shader/class14/skybox.fs");
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -248,6 +249,7 @@ int main()
             }
         }
 
+        // 画光源
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i)
         {
             glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
