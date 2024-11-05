@@ -5,10 +5,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "old_shader.hpp"
+#include "shader.hpp"
 #include "camera_control.hpp"
 #include "model.hpp"
-#include "load_image.hpp"
+#include "load_texture.hpp"
 
 #include <iostream>
 
@@ -29,8 +29,6 @@ int main()
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // build and compile shaders
     // -------------------------
@@ -136,9 +134,9 @@ int main()
 
     // load textures
     // -------------
-    unsigned int cubeTexture = load_image("./image/marble.png");
-    unsigned int floorTexture = load_image("./image/background.bmp");
-    unsigned int transparentTexture = load_image("./image/blending_transparent_window.png");
+    unsigned int cubeTexture = load_texture("./image/marble.png");
+    unsigned int floorTexture = load_texture("./image/background.bmp");
+    unsigned int transparentTexture = load_texture("./image/blending_transparent_window.png");
 
     // transparent window locations
     // --------------------------------
@@ -154,7 +152,7 @@ int main()
     shader.use();
     shader.setInt("texture1", 0);
 
-    Camera camera(window);
+    Camera camera(window, 45.0f, glm::vec3(0., 0., 10.));
 
     // configure global opengl state
     // -----------------------------
@@ -164,7 +162,7 @@ int main()
 
     // render loop
     // -----------
-    while (!glfwWindowShouldClose(window))
+    while (glfwWindowShouldClose(window) == 0 && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
         // render
         // ------
@@ -212,7 +210,7 @@ int main()
         // windows (from furthest to nearest)
         glBindVertexArray(transparentVAO);
         glBindTexture(GL_TEXTURE_2D, transparentTexture);
-        for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+        for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it) // 从远到近绘制物体，正确混合alpha通道
         {
             model = glm::mat4(1.0f);
             model = glm::translate(model, it->second);

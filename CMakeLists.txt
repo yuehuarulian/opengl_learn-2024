@@ -5,7 +5,6 @@ project(opengl_learn)
 include_directories(./include ./common ./task ./old_common)
 
 link_directories(./lib)
-# find_library(assimp-5d TOOLS_SHARED ./bin)
 
 aux_source_directory(./common COMMON_LIST)
 
@@ -53,6 +52,9 @@ target_link_libraries(homework_2 glfw3 libassimpd)
 
 # add_executable(class_13 learn/class13_blending.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
 # target_link_libraries(class_13 glfw3 libassimpd)
+
+add_executable(class_14 learn/class14_skybox.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+target_link_libraries(class_14 glfw3 libassimpd)
 
 add_custom_target(copy_assimp_dll ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

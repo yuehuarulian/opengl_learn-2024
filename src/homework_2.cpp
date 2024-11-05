@@ -12,7 +12,7 @@
 #include "GLFW/glfw3.h"
 
 #include "old_shader.hpp"
-#include "load_image.hpp"
+#include "load_texture.hpp"
 #include "sphere.hpp"
 #include "camera_control.hpp"
 
@@ -60,7 +60,7 @@ void init(GLFWwindow *window, GLuint *programID, GLuint *texture)
     programID[1] = load_shaders("shaderprogram/homework2_2.vertexshader", "shaderprogram/homework2_2.fragmentshader");
     camera = Camera(window, 45.0f, glm::vec3(0, 3, 20));
     for (int i = 0; i < numPlanets; i++)
-        texture[i] = load_image(planets[i].textureFile); // 加载每个天体的纹理
+        texture[i] = load_texture(planets[i].textureFile); // 加载每个天体的纹理
 }
 
 void setup_vertices(GLuint &VAO, GLuint *VBO)

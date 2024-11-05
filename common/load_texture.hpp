@@ -1,13 +1,12 @@
-#ifndef LOAD_BMP_HPP
-#define LOAD_BMP_HPP
+#ifndef LOAD_TEXTURE_HPP
+#define LOAD_TEXTURE_HPP
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <iostream>
-// #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-GLuint load_image(const char *imagepath)
+GLuint load_texture(const char *imagepath)
 {
     unsigned int texture;
     glGenTextures(1, &texture);

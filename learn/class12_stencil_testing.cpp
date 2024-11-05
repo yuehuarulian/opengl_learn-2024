@@ -7,7 +7,8 @@
 #include "GLFW/glfw3.h"
 
 #include "shader.hpp"
-#include "load_image.hpp"
+#include "load_texture.hpp"
+#include "load_skybox.cpp"
 #include "objloader.hpp"
 #include "camera_control.hpp"
 #include "assimp/Importer.hpp"
@@ -189,15 +190,15 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glStencilMask(0x00); // 禁止写入
 
-        camera.computeMatricesFromInputs(window); // 读键盘和鼠标操作，然后计算投影观察矩阵
-        glm::mat4 Projection = camera.ProjectionMatrix;
-        glm::mat4 View = camera.ViewMatrix;
+        camera.compute_matrices_from_inputs(window); // 读键盘和鼠标操作，然后计算投影观察矩阵
+        glm::mat4 Projection = camera.projection;
+        glm::mat4 View = camera.view;
         glm::mat4 Model = glm::mat4(1.0f);
         lightingShader.use();
         // lightingShader.setMat4("M", Model);
         lightingShader.setMat4("V", View);
         lightingShader.setMat4("P", Projection);
-        lightingShader.setVec3("CameraPosition_worldspace", camera.get_camerapos());
+        lightingShader.setVec3("CameraPosition_worldspace", camera.get_pos());
 
         // 平行光
         lightingShader.setVec3("dirlight.direction", -0.2f, -1.0f, -0.3f);
