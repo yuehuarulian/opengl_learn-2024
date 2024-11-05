@@ -1,0 +1,45 @@
+#version 330 core
+in vec2 UV;
+in vec3 LightDirection_cameraspace;
+in vec3 Normal_cameraspace;
+in vec3 viewDirection_cameraspace;
+in float distance;
+
+out vec4 color;
+
+uniform sampler2D myTextureSampler;
+uniform vec3 LightColor;          // 光源颜色
+uniform float LightPower;         // 光源强度
+uniform float LightSpecularPower; // 光源镜面反射强度
+
+struct Material
+{
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+}; // 材质
+
+void main()
+{
+    Material material;
+
+    vec3 objectColor = texture(myTextureSampler, UV).rgb;
+
+    // 用于计算漫反射
+    vec3 n = Normal_cameraspace;
+    vec3 l = LightDirection_cameraspace;
+    float cosTheta = clamp(dot(n, l), 0, 1);
+    material.diffuse = LightPower * cosTheta / (distance / 4 * distance / 4) * objectColor * LightColor;
+
+    // 用于计算环境光
+    material.ambient = 0.1 * objectColor * LightColor;
+
+    // 用于计算镜面反射
+    vec3 r = reflect(LightDirection_cameraspace, n);
+    vec3 v = viewDirection_cameraspace;
+    float cosAlpha = clamp(dot(r, v), 0, 1);
+    material.specular = pow(cosAlpha, 5) * LightSpecularPower * LightColor;
+
+    color = vec4(material.ambient + material.diffuse + material.specular, 1);
+}
