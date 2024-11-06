@@ -14,7 +14,7 @@
 #include "camera_control.hpp"
 #include "model.hpp"
 #include "load_texture.hpp"
-#include "load_skybox.hpp"
+#include "draw_base_model.hpp"
 #include "skybox.hpp"
 #include "light_manager.hpp"
 #include "renderable_model.hpp"
@@ -68,102 +68,19 @@ public:
     }
 };
 
-// renders (and builds at first invocation) a sphere
-// -------------------------------------------------
-unsigned int sphereVAO = 0;
-unsigned int indexCount;
-void renderSphere()
-{
-    if (sphereVAO == 0)
-    {
-        glGenVertexArrays(1, &sphereVAO);
-
-        unsigned int vbo, ebo;
-        glGenBuffers(1, &vbo);
-        glGenBuffers(1, &ebo);
-
-        std::vector<glm::vec3> positions;
-        std::vector<glm::vec2> uv;
-        std::vector<glm::vec3> normals;
-        std::vector<unsigned int> indices;
-
-        const unsigned int X_SEGMENTS = 64;
-        const unsigned int Y_SEGMENTS = 64;
-        const float PI = 3.14159265359f;
-        for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
-        {
-            for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
-            {
-                float xSegment = (float)x / (float)X_SEGMENTS;
-                float ySegment = (float)y / (float)Y_SEGMENTS;
-                float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
-                float yPos = std::cos(ySegment * PI);
-                float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
-
-                positions.push_back(glm::vec3(xPos, yPos, zPos));
-                uv.push_back(glm::vec2(xSegment, ySegment));
-                normals.push_back(glm::vec3(xPos, yPos, zPos));
-            }
-        }
-
-        bool oddRow = false;
-        for (unsigned int y = 0; y < Y_SEGMENTS; ++y)
-        {
-            if (!oddRow) // even rows: y == 0, y == 2; and so on
-            {
-                for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
-                {
-                    indices.push_back(y * (X_SEGMENTS + 1) + x);
-                    indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                }
-            }
-            else
-            {
-                for (int x = X_SEGMENTS; x >= 0; --x)
-                {
-                    indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                    indices.push_back(y * (X_SEGMENTS + 1) + x);
-                }
-            }
-            oddRow = !oddRow;
-        }
-        indexCount = static_cast<unsigned int>(indices.size());
-
-        std::vector<float> data;
-        for (unsigned int i = 0; i < positions.size(); ++i)
-        {
-            data.push_back(positions[i].x);
-            data.push_back(positions[i].y);
-            data.push_back(positions[i].z);
-            if (normals.size() > 0)
-            {
-                data.push_back(normals[i].x);
-                data.push_back(normals[i].y);
-                data.push_back(normals[i].z);
-            }
-            if (uv.size() > 0)
-            {
-                data.push_back(uv[i].x);
-                data.push_back(uv[i].y);
-            }
-        }
-        glBindVertexArray(sphereVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-        unsigned int stride = (3 + 2 + 3) * sizeof(float);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void *)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void *)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void *)(6 * sizeof(float)));
-    }
-
-    glBindVertexArray(sphereVAO);
-    glDrawElements(GL_TRIANGLE_STRIP, indexCount, GL_UNSIGNED_INT, 0);
-}
+// light
+LightManager lightManager;
+glm::vec3 lightPositions[] = {
+    glm::vec3(0.0f, 0.0f, 10.0f),
+    glm::vec3(0.0f, 0.0f, -10.0f),
+};
+glm::vec3 lightColors[] = {
+    glm::vec3(150.0f, 150.0f, 150.0f),
+    glm::vec3(150.0f, 150.0f, 150.0f),
+};
+int nrRows = 7;
+int nrColumns = 7;
+float spacing = 2.5;
 
 int main()
 {
@@ -171,7 +88,7 @@ int main()
 
     Camera camera(window, 45.0f, glm::vec3(0., 0., 10.));
 
-    Shader shader("source/shader/class15/pbr.vs", "source/shader/class15/pbr.fs");
+    Shader shader("source/shader/class15/pbr.vs", "source/shader/class15/pbr_texture.fs");
     Skybox skybox(faces, "source/shader/class14/skybox.vs", "source/shader/class14/skybox.fs");
 
     shader.use();
@@ -181,25 +98,11 @@ int main()
     shader.setInt("roughnessMap", 3);
     shader.setInt("aoMap", 4);
 
-    unsigned int albedo = load_texture("source/model/rustediron1-alt2-bl/rustediron2_basecolor.png");
-    unsigned int normal = load_texture("source/model/rustediron1-alt2-bl/rustediron2_normal.png");
-    unsigned int metallic = load_texture("source/model/rustediron1-alt2-bl/rustediron2_metallic.png");
-    unsigned int roughness = load_texture("source/model/rustediron1-alt2-bl/rustediron2_roughness.png");
-    unsigned int ao = load_texture("source/model/rustediron1-alt2-bl/ao.png");
-
-    // light
-    LightManager lightManager;
-    glm::vec3 lightPositions[] = {
-        glm::vec3(0.0f, 0.0f, 10.0f),
-        glm::vec3(0.0f, 0.0f, -10.0f),
-    };
-    glm::vec3 lightColors[] = {
-        glm::vec3(150.0f, 150.0f, 150.0f),
-        glm::vec3(150.0f, 150.0f, 150.0f),
-    };
-    int nrRows = 7;
-    int nrColumns = 7;
-    float spacing = 2.5;
+    unsigned int albedo = load_texture("source/model/metalgrid2-dx/metalgrid2_basecolor.png");
+    unsigned int normal = load_texture("source/model/metalgrid2-dx/metalgrid2_normal-dx.png");
+    unsigned int metallic = load_texture("source/model/metalgrid2-dx/metalgrid2_metallic.png");
+    unsigned int roughness = load_texture("source/model/metalgrid2-dx/metalgrid2_roughness.png");
+    unsigned int ao = load_texture("source/model/metalgrid2-dx/metalgrid2_AO.png");
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -245,7 +148,7 @@ int main()
                                                   0.0f));
                 shader.setMat4("model", model);
                 shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-                renderSphere();
+                render_sphere();
             }
         }
 
@@ -262,7 +165,7 @@ int main()
             model = glm::scale(model, glm::vec3(0.5f));
             shader.setMat4("model", model);
             shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-            renderSphere();
+            render_sphere();
         }
 
         glfwSwapBuffers(window);

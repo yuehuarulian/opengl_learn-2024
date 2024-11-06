@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <filesystem>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glad/glad.h>
@@ -14,7 +13,6 @@
 #include "camera_control.hpp"
 #include "model.hpp"
 #include "load_texture.hpp"
-#include "load_skybox.hpp"
 #include "skybox.hpp"
 #include "renderable_model.hpp"
 
