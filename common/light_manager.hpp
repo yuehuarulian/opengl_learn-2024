@@ -70,7 +70,7 @@ class LightManager
 {
 public:
     void add_point_light(const glm::vec3 &position, const glm::vec3 &color, float constant = 1.0f, float linear = 0.09f, float quadratic = 0.032f);
-    void add_directional_light(const glm::vec3 &position, const glm::vec3 &color);
+    void add_directional_light(const glm::vec3 &direction, const glm::vec3 &color);
     void add_spot_light(const glm::vec3 &position, const glm::vec3 direction, const glm::vec3 &color, float cutOff = glm::cos(glm::radians(12.5f)), float outerCutOff = glm::cos(glm::radians(17.5f)), float constant = 1.0f, float linear = 0.09f, float quadratic = 0.032f);
     void add_area_light(const glm::vec3 &position, const glm::vec3 &normal, const glm::vec3 &color, float width = 1.0f, float height = 1.0f, int num_samples = 16);
 

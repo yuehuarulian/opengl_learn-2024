@@ -7,9 +7,9 @@ void LightManager::add_point_light(const glm::vec3 &position, const glm::vec3 &c
     point_lights.push_back(light);
 }
 
-void LightManager::add_directional_light(const glm::vec3 &position, const glm::vec3 &color)
+void LightManager::add_directional_light(const glm::vec3 &direction, const glm::vec3 &color)
 {
-    DirectionalLight light(position, color);
+    DirectionalLight light(direction, color);
     directional_lights.push_back(light);
 }
 
@@ -19,10 +19,18 @@ void LightManager::add_spot_light(const glm::vec3 &position, const glm::vec3 dir
     spot_lights.push_back(light);
 }
 
-void LightManager::add_area_light(const glm::vec3 &position, const glm::vec3 &color, const glm::vec3 &normal, float width, float height, int num_samples)
+void LightManager::add_area_light(const glm::vec3 &position, const glm::vec3 &normal, const glm::vec3 &color, float width, float height, int num_samples)
 {
     AreaLight light(position, normal, color, width, height, num_samples);
     area_lights.push_back(light);
+}
+
+void LightManager::clear_lights()
+{
+    point_lights.clear();
+    directional_lights.clear();
+    spot_lights.clear();
+    area_lights.clear();
 }
 
 void LightManager::apply_lights(const std::shared_ptr<Shader> &shader)

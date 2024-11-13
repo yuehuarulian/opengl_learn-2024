@@ -43,21 +43,21 @@ struct Planet
 };
 
 const Planet planets[numPlanets] = {
-    {69600000.0f, 0.0f, 0.0f, "image/sun.bmp"},                 // 太阳
-    {4879000.0f, 57900000.0f, 88.0f, "image/mercury.bmp"},      // 水星
-    {12104000.0f, 108200000.0f, 225.0f, "image/venus.bmp"},     // 金星
-    {15945000.0f, 150000000.0f, 365.0f, "image/earth.bmp"},     // 地球
-    {8340000.0f, 227900000.0f, 687.0f, "image/mars.bmp"},       // 火星
-    {69911000.0f, 778500000.0f, 4333.0f, "image/jupiter.bmp"},  // 木星
-    {58232000.0f, 1429000000.0f, 10759.0f, "image/saturn.bmp"}, // 土星
-    {25362000.0f, 2871000000.0f, 30685.0f, "image/uranus.bmp"}, // 天王星
-    {24622000.0f, 4495000000.0f, 60190.0f, "image/neptune.bmp"} // 海王星
+    {69600000.0f, 0.0f, 0.0f, "source/texture/TEXTURE/sun.bmp"},                 // 太阳
+    {4879000.0f, 57900000.0f, 88.0f, "source/texture/TEXTURE/mercury.bmp"},      // 水星
+    {12104000.0f, 108200000.0f, 225.0f, "source/texture/TEXTURE/venus.bmp"},     // 金星
+    {15945000.0f, 150000000.0f, 365.0f, "source/texture/TEXTURE/earth.bmp"},     // 地球
+    {8340000.0f, 227900000.0f, 687.0f, "source/texture/TEXTURE/mars.bmp"},       // 火星
+    {69911000.0f, 778500000.0f, 4333.0f, "source/texture/TEXTURE/jupiter.bmp"},  // 木星
+    {58232000.0f, 1429000000.0f, 10759.0f, "source/texture/TEXTURE/saturn.bmp"}, // 土星
+    {25362000.0f, 2871000000.0f, 30685.0f, "source/texture/TEXTURE/uranus.bmp"}, // 天王星
+    {24622000.0f, 4495000000.0f, 60190.0f, "source/texture/TEXTURE/neptune.bmp"} // 海王星
 };
 
 void init(GLFWwindow *window, GLuint *programID, GLuint *texture)
 {
-    programID[0] = load_shaders("shaderprogram/homework2_1.vertexshader", "shaderprogram/homework2_1.fragmentshader");
-    programID[1] = load_shaders("shaderprogram/homework2_2.vertexshader", "shaderprogram/homework2_2.fragmentshader");
+    programID[0] = load_shaders("source/shader/homework_2/homework2_1.vertexshader", "source/shader/homework_2/homework2_1.fragmentshader");
+    programID[1] = load_shaders("source/shader/homework_2/homework2_2.vertexshader", "source/shader/homework_2/homework2_2.fragmentshader");
     camera = Camera(window, 45.0f, glm::vec3(0, 3, 20));
     for (int i = 0; i < numPlanets; i++)
         texture[i] = load_texture(planets[i].textureFile); // 加载每个天体的纹理
