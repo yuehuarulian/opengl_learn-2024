@@ -76,6 +76,8 @@ public:
 
     void apply_lights(const std::shared_ptr<Shader> &shader);
 
+    void clear_lights();
+
 private:
     std::vector<PointLight> point_lights;
     std::vector<DirectionalLight> directional_lights;
