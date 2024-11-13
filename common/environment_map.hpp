@@ -31,7 +31,7 @@ const glm::mat4 capture_views[] = {
  * @param capture_views 包含 6 个方向的视图矩阵数组，用于捕获立方体贴图的 6 个面。
  * @return 生成的环境立方体贴图的 OpenGL 纹理 ID。
  */
-GLuint convert_equirectangular_to_cubemap(GLuint hdr_texture, const std::string &vertex_shader_path, const std::string &fragment_shader_path)
+GLuint convert_equirectangular_to_cubemap(GLuint hdr_texture, const std::string &vertex_shader_path = "source/shader/cubemap.vs", const std::string &fragment_shader_path = "source/shader/equirectangular_to_cubemap.fs")
 {
     // 初始化转换的着色器
     Shader equirectangular_to_cubemap_shader(vertex_shader_path.c_str(), fragment_shader_path.c_str());
@@ -90,7 +90,7 @@ GLuint convert_equirectangular_to_cubemap(GLuint hdr_texture, const std::string 
  * @param capture_views 包含 6 个方向的视图矩阵数组，用于捕获立方体贴图的 6 个面。
  * @return 生成的辐照度立方体贴图的 OpenGL 纹理 ID。
  */
-GLuint generate_irradiance_map(GLuint env_cubemap, const std::string &vertex_shader_path, const std::string &fragment_shader_path)
+GLuint generate_irradiance_map(GLuint env_cubemap, const std::string &vertex_shader_path = "source/shader/cubemap.vs", const std::string &fragment_shader_path = "source/shader/irradiance_convolution.fs")
 {
     Shader irradiance_shader(vertex_shader_path.c_str(), fragment_shader_path.c_str());
 

@@ -47,29 +47,7 @@ vector<std::string> faces{
     "source/skybox/sky/front.jpg",
     "source/skybox/sky/back.jpg"};
 
-class Object : public RenderableModel
-{
-public:
-    Object(const std::string &model_path, std::shared_ptr<Shader> shader, bool gamma = false) : RenderableModel(model_path, std::move(shader), gamma) {}
-
-    void draw(const glm::mat4 &projection, const glm::mat4 &view, const glm::vec3 &camera_pos) override
-    {
-        glm::mat4 M = glm::mat4(1.0f);
-        M = glm::translate(M, glm::vec3(5.f, 0.f, 0.f));
-        M = glm::rotate(M, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        M = glm::scale(M, glm::vec3(1.f, 1.f, 1.f) * 0.5f);
-
-        shader->use();
-        shader->setMat4("model", M);
-        shader->setMat4("view", view);
-        shader->setMat4("projection", projection);
-
-        model.Draw(*shader);
-    }
-};
-
 // light
-LightManager lightManager;
 glm::vec3 lightPositions[] = {
     glm::vec3(0.0f, 0.0f, 10.0f),
     glm::vec3(0.0f, 0.0f, -10.0f),
@@ -136,11 +114,9 @@ int main()
         glm::mat4 model = glm::mat4(1.0f);
         for (int row = 0; row < nrRows; ++row)
         {
-            shader.setFloat("metallic", (float)row / (float)nrRows);
+            // shader.setFloat("metallic", (float)row / (float)nrRows);
             for (int col = 0; col < nrColumns; ++col)
             {
-                shader.setFloat("roughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
-
                 model = glm::mat4(1.0f);
                 model = glm::translate(model, glm::vec3(
                                                   (col - (nrColumns / 2)) * spacing,

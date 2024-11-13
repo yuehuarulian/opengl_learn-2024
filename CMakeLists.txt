@@ -3,16 +3,21 @@ cmake_minimum_required(VERSION 3.5)
 project(opengl_learn)
 
 include_directories(./include ./common ./task ./old_common)
+include_directories(./include/imgui)
 
 link_directories(./lib)
 
 aux_source_directory(./common COMMON_LIST)
+aux_source_directory(./include/imgui IMGUI_LIST)
 
 # add_executable(homework_1 src/homework_1.cpp src/glad.c)
 # target_link_libraries(homework_1 glfw3)
 
-add_executable(homework_2 src/homework_2.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
-target_link_libraries(homework_2 glfw3 libassimpd)
+# add_executable(homework_2 src/homework_2.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+# target_link_libraries(homework_2 glfw3 libassimpd)
+
+add_executable(homework_3 src/homework_3.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
+target_link_libraries(homework_3 glfw3 libassimpd)
 
 # add_executable(class_1 learn/class1_window.cpp src/glad.c)
 # target_link_libraries(class_1 glfw3)
@@ -61,6 +66,10 @@ target_link_libraries(class_15 glfw3 libassimpd)
 
 add_executable(class_16 learn/class16_PBR_IBL.cpp src/glad.c task/sphere.cpp ${COMMON_LIST})
 target_link_libraries(class_16 glfw3 libassimpd)
+
+
+add_executable(test src/test.cpp src/glad.c ${COMMON_LIST} ${IMGUI_LIST})
+target_link_libraries(test glfw3 libassimpd)
 
 add_custom_target(copy_assimp_dll ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

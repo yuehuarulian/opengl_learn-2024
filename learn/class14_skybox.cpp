@@ -124,11 +124,11 @@ int main()
     // -------------------------
     Camera camera(window, 45.0f, glm::vec3(0., 0., 10.));
 
-    Shader shader("source/shaderprogram/class14/cubemaps.vs", "source/shaderprogram/class14/cubemaps.fs");
+    Shader shader("source/shader/class14/cubemaps.vs", "source/shader/class14/cubemaps.fs");
 
-    Skybox skybox(faces, "source/shaderprogram/class14/skybox.vs", "source/shaderprogram/class14/skybox.fs");
+    Skybox skybox(faces, "source/shader/class14/skybox.vs", "source/shader/class14/skybox.fs");
 
-    Object nanosuit("source/model/nanosuit_reflection/nanosuit.obj", std::make_shared<Shader>("source/shaderprogram/class14/nanosuit.vs", "source/shaderprogram/class14/nanosuit.fs"));
+    Object nanosuit("source/model/nanosuit_reflection/nanosuit.obj", std::make_shared<Shader>("source/shader/class14/nanosuit.vs", "source/shader/class14/nanosuit.fs"));
 
     // cube VAO
     unsigned int cubeVAO, cubeVBO;
