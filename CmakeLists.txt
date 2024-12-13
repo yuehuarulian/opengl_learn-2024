@@ -1,0 +1,37 @@
+
+cmake_minimum_required(VERSION 3.11)
+#set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+project(BIGWORK)
+
+if(MINGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+endif()
+
+include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src)
+
+link_directories(${PROJECT_SOURCE_DIR}/bin)
+link_directories(${PROJECT_SOURCE_DIR}/lib)
+
+set(DLL_FILES
+    "${PROJECT_SOURCE_DIR}/bin/glfw3.dll"
+    "${PROJECT_SOURCE_DIR}/bin/libassimp-5d.dll"
+)
+
+add_custom_target(copy_dlls ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_SOURCE_DIR}/build"
+)
+
+# 对每个 DLL 文件添加一个自定义的命令来复制它们
+foreach(DLL_FILE ${DLL_FILES})
+    add_custom_command(TARGET copy_dlls
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DLL_FILE} "${PROJECT_SOURCE_DIR}/build"
+        COMMENT "Copying ${DLL_FILE} to build directory"
+    )
+endforeach()
+
+aux_source_directory(./src SRC_LIST)
+
+add_executable(main src/main.cpp ${SRC_LIST})
+target_link_libraries(main glfw3 libassimpd)
